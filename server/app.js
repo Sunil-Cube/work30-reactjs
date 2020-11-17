@@ -5,12 +5,16 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 import expressValidator from "express-validator";
 var indexRouter = require('./api/routes/route');
+const cors = require("cors");
 
 // import api_routes_info from "./api/routes/route";
 
 // var usersRouter = require('./routes/users');
 
 var app = express();
+
+app.use(cors());
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

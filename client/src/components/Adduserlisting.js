@@ -7,6 +7,8 @@ import {
 
 } from 'reactstrap';
 
+import io from "socket.io-client";
+
 import axios from 'axios';
 import memoize from 'memoize-one';
 import DataTable from 'react-data-table-component';
@@ -27,7 +29,7 @@ const CustomTitle = ({ row }) => (
 );
 
 const columns = memoize(clickHandler => [
-    
+
     {
         name: 'ID',
         selector: 'id',
@@ -91,7 +93,8 @@ class Adduserlisting extends Component {
             totalRows: 0,
             page_rows: [5, 20, 50, 100, 500],
             checked: false,
-            selectedRows: []
+            selectedRows: [],
+            total_count: 0,
         };
 
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -135,6 +138,14 @@ class Adduserlisting extends Component {
         var new_obj = {};
         new_obj.perPage = perPage;
         await this.my_company_serverside_pagination_logic(new_obj);
+
+        let server = "http://localhost:3010";
+        this.socket = io(server, { transports: ['websocket'], upgrade: false });
+        this.socket.on("totalcount", this.selectedtotalCount)
+    }
+
+    selectedtotalCount = count => {
+        this.setState({ total_count: count });
     }
 
     async reset_search_filter() {
@@ -165,8 +176,8 @@ class Adduserlisting extends Component {
                 else {
                 }
             }).catch((error) => {
-                    console.log('error raise');
-                    console.log(error);
+                console.log('error raise');
+                console.log(error);
             })
         }
         this.reset_search_filter();
@@ -176,7 +187,7 @@ class Adduserlisting extends Component {
         if (e.target.value === 'on') {
             var idd = e.target.id;
             var company_status = e.target.checked;
-            
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: 'You want to change this company status? ',
@@ -255,6 +266,7 @@ class Adduserlisting extends Component {
         return (
             <div>
                 <h1>Company Record listing</h1>
+                <h3>Live record count :: {this.state.total_count}</h3>
                 <Card style={{ height: '100%' }}>
                     <CardHeader>
                         <strong>ADD Company</strong> <span className="float-right"><Button block color="primary" onClick={this.add_user_form} className="btn-pill">Add Company</Button></span>
